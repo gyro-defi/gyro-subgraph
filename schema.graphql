@@ -1,0 +1,152 @@
+type Referral @entity {
+  id: ID!
+  account: Bytes! # address
+  code: String!
+  rewards: BigInt!
+}
+
+type UserBalance @entity {
+  id: ID!
+  user: User!
+  sGyroBalance: BigDecimal!
+  gyroBalance: BigDecimal!
+  bondBalance: BigDecimal!
+  dollarBalance: BigDecimal!
+  stakes: [ContractInfo!]
+  bonds: [ContractInfo!]
+  timestamp: BigInt!
+}
+
+type Deposit @entity {
+  id: ID!
+  transaction: Transaction!
+  user: User!
+  amount: BigDecimal!
+  maxPremium: BigDecimal!
+  token: Token!
+  value: BigDecimal!
+  timestamp: BigInt!
+}
+
+type Redemption @entity {
+  id: ID!
+  transaction: Transaction
+  user: User
+  token: Token
+  timestamp: BigInt
+}
+
+type Stake @entity {
+  id: ID!
+  transaction: Transaction!
+  user: User!
+  amount: BigDecimal!
+  timestamp: BigInt!
+}
+
+type Unstake @entity {
+  id: ID!
+  transaction: Transaction!
+  user: User!
+  amount: BigDecimal!
+  timestamp: BigInt!
+}
+
+type Rebase @entity {
+  id: ID!
+  transaction: String!
+  amount: BigDecimal!
+  stakedGyro: BigDecimal!
+  percentage: BigDecimal!
+  contract: String!
+  timestamp: BigInt!
+  value: BigDecimal!
+}
+
+type ContractInfo @entity {
+  id: ID!
+  name: String
+  contract: String
+  amount: BigDecimal
+}
+
+type User @entity {
+  id: ID!
+  bondDeposits: [Deposit!]! @derivedFrom(field: "user")
+  bondRedemptions: [Redemption!]! @derivedFrom(field: "user")
+  stakeTransactions: [Stake!]! @derivedFrom(field: "user")
+  unstakeTransactions: [Unstake!]! @derivedFrom(field: "user")
+  historicBalance: [UserBalance!]! @derivedFrom(field: "user")
+  lastBalance: UserBalance
+  active: Boolean!
+}
+
+type ProtocolMetric @entity {
+  id: ID!
+  timestamp: BigInt!
+  gyroCirculatingSupply: BigDecimal!
+  sGyroCirculatingSupply: BigDecimal!
+  totalSupply: BigDecimal!
+  gyroPrice: BigDecimal!
+  marketCap: BigDecimal!
+  totalValueLocked: BigDecimal!
+  treasuryRiskFreeValue: BigDecimal!
+  treasuryMarketValue: BigDecimal!
+  nextEpochRebase: BigDecimal!
+  nextRebaseRewards: BigDecimal!
+  treasuryUsdtRiskFreeValue: BigDecimal!
+  treasuryBusdRiskFreeValue: BigDecimal!
+  treasuryUsdtMarketValue: BigDecimal!
+  treasuryBusdMarketValue: BigDecimal!
+  currentAPY: BigDecimal!
+  runway2dot5k: BigDecimal
+  runway5k: BigDecimal
+  runway7dot5k: BigDecimal
+  runway10k: BigDecimal
+  runway20k: BigDecimal
+  runway50k: BigDecimal
+  runway70k: BigDecimal
+  runway100k: BigDecimal
+  runwayCurrent: BigDecimal
+  treasuryGyroUsdtPOL: BigDecimal!
+  treasuryGyroBusdPOL: BigDecimal!
+  holders: BigInt!
+}
+
+type Transaction @entity {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  blockHash: Bytes!
+  from: Bytes!
+  to: Bytes
+  value: BigInt!
+  gasUsed: BigInt!
+  gasPrice: BigInt!
+}
+
+type Token @entity {
+  id: ID!
+}
+
+type Aux @entity {
+  id: ID!
+  value: BigInt!
+}
+
+type BondDiscount @entity {
+  id: ID!
+  timestamp: BigInt!
+  usdt_discount: BigDecimal!
+  gyrousdt_discount: BigDecimal!
+  busd_discount: BigDecimal!
+  gyrobusd_discount: BigDecimal!
+}
+
+type DailyBond @entity {
+  id: ID!
+  timestamp: BigInt!
+  token: Token!
+  amount: BigDecimal!
+  value: BigDecimal!
+}

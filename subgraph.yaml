@@ -1,0 +1,110 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  # Gyro Vault
+  - kind: ethereum/contract
+    name: GyroVault
+    network: bsc
+    source:
+      address: "0xE9C178CFDFEb917A46429714E5D51f6d4f296b75"
+      abi: GyroVault
+      startBlock: 10469135
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - GyroVault
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
+        - name: GyroERC20
+          file: ./abis/Gyro.json
+        - name: sGyroERC20
+          file: ./abis/sGyro.json
+        - name: GyroVault
+          file: ./abis/GyroVault.json
+        - name: GyroBond
+          file: ./abis/GyroBond.json
+      eventHandlers:
+        - event: LogStake(indexed address,indexed address,uint256,uint256)
+          handler: handleStake
+        - event: LogRedeem(indexed address,uint256,bool)
+          handler: handleRedeem
+      file: ./src/GyroVault.ts
+  # # Gyro Usdt Bond
+  # - kind: ethereum/contract
+  #   name: GyroUsdtBond
+  #   network: bsc
+  #   source:
+  #     address: "0xd6b1997149f1114f6251B6df1D907770Ba6df819"
+  #     abi: GyroBond
+  #     startBlock: 10472358
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - GyroUsdtBond
+  #     abis:
+  #       - name: GyroBond
+  #         file: ./abis/GyroBond.json
+  #     eventHandlers:
+  #       - event: LogBondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
+  #         handler: handleBondDeposit
+  #       - event: LogBondRedeemed(indexed address,uint256,uint256)
+  #         handler: handleBondRedeem
+  #     file: ./src/GyroUsdtBond.ts
+  # # Gyro Busd Bond
+  # - kind: ethereum/contract
+  #   name: GyroBusdBond
+  #   network: bsc
+  #   source:
+  #     address: "0xe259A3dFc976b43815C43723ecACB5c1E8794518"
+  #     abi: GyroBond
+  #     startBlock: 12420077
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - GyroBusdBond
+  #     abis:
+  #       - name: GyroBond
+  #         file: ./abis/GyroBond.json
+  #     eventHandlers:
+  #       - event: LogBondCreated(uint256,indexed uint256,indexed uint256,indexed uint256)
+  #         handler: handleBondDeposit
+  #       - event: LogBondRedeemed(indexed address,uint256,uint256)
+  #         handler: handleBondRedeem
+  #     file: ./src/GyroBusdBond.ts
+  # # Referral Contract
+  # - kind: ethereum/contract
+  #   name: Referral
+  #   network: bsc
+  #   source:
+  #     address: "0x9116cb9930e0f7C5bc35e33f17F6b892Af6E763a"
+  #     abi: Referral
+  #     startBlock: 10471037
+  #   mapping:
+  #     kind: ethereum/events
+  #     apiVersion: 0.0.4
+  #     language: wasm/assemblyscript
+  #     entities:
+  #       - LogClaim
+  #       - LogDepositRewards
+  #       - LogNewReferral
+  #     abis:
+  #       - name: Referral
+  #         file: ./abis/Referral.json
+  #     eventHandlers:
+  #       - event: LogClaim(indexed address,uint256)
+  #         handler: handleLogClaim
+  #       - event: LogDepositRewards(indexed address,indexed address,uint256)
+  #         handler: handleLogDepositRewards
+  #       - event: LogNewReferral(indexed address,indexed bytes32)
+  #         handler: handleLogNewReferral
+  #     file: ./src/Referral.ts
