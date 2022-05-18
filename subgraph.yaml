@@ -9,7 +9,7 @@ dataSources:
     source:
       address: "0xE9C178CFDFEb917A46429714E5D51f6d4f296b75"
       abi: GyroVault
-      startBlock: 10469135
+      startBlock: 13901910
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

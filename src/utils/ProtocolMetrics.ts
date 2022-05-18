@@ -14,7 +14,11 @@ import {
   PCS_GYROBUSD_PAIR_BLOCK,
   GYRO_ERC20_CONTRACT,
   SGYRO_ERC20_CONTRACT,
+  SGYRO_ERC20_CONTRACT_V2,
+  SGYRO_ERC20_CONTRACT_V2_BLOCK,
   GYRO_VAULT_CONTRACT,
+  GYRO_VAULT_CONTRACT_V2,
+  GYRO_VAULT_CONTRACT_V2_BLOCK,
   TREASURY_ADDRESS,
 } from "./Constants";
 import { dayFromTimestamp } from "./Dates";
@@ -148,7 +152,7 @@ function getCriculatingSupply(): BigDecimal {
   return circ_supply;
 }
 
-function getSGyroSupply(): BigDecimal {
+function getSGyroSupply(transaction: Transaction): BigDecimal {
   let sGyro_supply = BigDecimal.fromString("0");
 
   let sGyro_contract = sGyroERC20.bind(
@@ -156,17 +160,41 @@ function getSGyroSupply(): BigDecimal {
   );
   sGyro_supply = toDecimal(sGyro_contract.circulatingSupply(), 9);
 
+  if (
+    transaction.blockNumber.gt(BigInt.fromString(SGYRO_ERC20_CONTRACT_V2_BLOCK))
+  ) {
+    let sGyro_contract_v2 = sGyroERC20.bind(
+      Address.fromString(SGYRO_ERC20_CONTRACT_V2)
+    );
+    sGyro_supply = sGyro_supply.plus(
+      toDecimal(sGyro_contract_v2.circulatingSupply(), 9)
+    );
+  }
+
   log.debug("sGyro Supply {}", [sGyro_supply.toString()]);
   return sGyro_supply;
 }
 
-function getNextRebase(): BigDecimal {
+function getNextRebase(transaction: Transaction): BigDecimal {
   let next_rebase = BigDecimal.fromString("0");
 
   let gyro_vault = GyroVault.bind(Address.fromString(GYRO_VAULT_CONTRACT));
 
   next_rebase = toDecimal(gyro_vault.epoch().value3, 9);
   log.debug("next_rebase {}", [next_rebase.toString()]);
+
+  if (
+    transaction.blockNumber.gt(BigInt.fromString(GYRO_VAULT_CONTRACT_V2_BLOCK))
+  ) {
+    let staking_contract_v2 = GyroVault.bind(
+      Address.fromString(GYRO_VAULT_CONTRACT_V2)
+    );
+    let next_rebase_v2 = toDecimal(staking_contract_v2.epoch().value3, 9);
+    log.debug("next_rebase v2 {}", [next_rebase_v2.toString()]);
+    next_rebase = next_rebase.plus(next_rebase_v2);
+  }
+
+  log.debug("next_rebase total {}", [next_rebase.toString()]);
 
   return next_rebase;
 }
@@ -266,13 +294,13 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.gyroCirculatingSupply = getCriculatingSupply();
 
   //sGyro Supply
-  pm.sGyroCirculatingSupply = getSGyroSupply();
+  pm.sGyroCirculatingSupply = getSGyroSupply(transaction);
 
   //Gyro Price
   pm.gyroPrice = getGyroUSDRate();
 
   //Gyro Market Cap
-  pm.marketCap = pm.gyroCirculatingSupply.times(pm.gyroPrice);
+  pm.marketCap = pm.totalSupply.times(pm.gyroPrice);
 
   //Total Value Locked
   pm.totalValueLocked = pm.sGyroCirculatingSupply.times(pm.gyroPrice);
@@ -289,7 +317,7 @@ export function updateProtocolMetrics(transaction: Transaction): void {
   pm.treasuryGyroBusdPOL = mv_rfv[7];
 
   // Rebase rewards, APY, rebase
-  pm.nextRebaseRewards = getNextRebase();
+  pm.nextRebaseRewards = getNextRebase(transaction);
   let apy_rebase = getAPY_Rebase(
     pm.sGyroCirculatingSupply,
     pm.nextRebaseRewards
