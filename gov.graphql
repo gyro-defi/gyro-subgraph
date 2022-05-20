@@ -1,0 +1,18 @@
+# ProposalCreated tracks this event from the GovernorGyroDelegate.sol contract
+type ProposalCreated @entity {
+  id: ID! # the transaction hash plus event log
+  proposalId: BigInt!
+  proposer: Bytes!
+  startBlock: BigInt!
+  endBlock: BigInt!
+  description: String!
+}
+
+# VoteCast tracks this event from the GovernorGyroDelegate.sol contract
+type VoteCast @entity {
+  id: ID! # the transaction hash plus event log
+  voter: Bytes!
+  proposalId: BigInt!
+  support: BigInt!
+  votes: BigInt!
+}

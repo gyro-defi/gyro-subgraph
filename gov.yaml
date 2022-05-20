@@ -1,0 +1,29 @@
+specVersion: 0.0.2
+description: Gyro Gov
+repository: https://github.com/gyro-defi/gyro-gov
+schema:
+  file: ./gov.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Governor
+    network: bsc
+    source:
+      address: "0xB67dF844C37bEa88e9aC0C3Fdc3D5c1B7E8dB6a2"
+      abi: Governor
+      startBlock: 17911160
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/gov.ts
+      entities:
+        - ProposalCreated
+        - VoteCast
+      abis:
+        - name: Governor
+          file: ./abis/Governor.json
+      eventHandlers:
+        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,uint256,string)
+          handler: handleProposalCreated
+        - event: VoteCast(indexed address,uint256,uint8,uint256,string)
+          handler: handleVoteCast
